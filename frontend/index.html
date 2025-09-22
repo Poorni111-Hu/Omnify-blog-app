@@ -4,85 +4,80 @@
   <title>Omnify Blog App</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #2e8b57;
-      color: white;
-      padding: 15px;
-      text-align: center;
-    }
-    nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    #blogs {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 20px;
-    }
-    .blog-card {
-      background: white;
-      width: 80%;
-      max-width: 700px;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .blog-card h3 {
-      margin-top: 0;
-      color: #2e8b57;
-    }
-    .blog-card p {
-      font-size: 16px;
-      line-height: 1.5;
-    }
-    .blog-card small {
-      color: #555;
-    }
+    body {font-family: Arial,sans-serif;background:#f0f8ff;margin:0;padding:0;}
+    header {background:#2e8b57;color:white;padding:15px;text-align:center;}
+    nav a {color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
+    #blogs {display:flex;flex-direction:column;align-items:center;margin:20px;}
+    .blog-card {background:white;width:80%;max-width:700px;padding:15px;margin:10px 0;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+    .blog-card h3 {margin-top:0;color:#2e8b57;}
+    .blog-card p {font-size:16px;line-height:1.5;}
+    .blog-card small {color:#555;}
+    button {cursor:pointer;margin-top:5px;padding:5px 10px;border:none;border-radius:4px;background:#2e8b57;color:white;}
+    input, textarea {width:100%;margin:5px 0;padding:8px;}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Omnify Blog App</h1>
-    <nav>
-      <a href="signup.html">Signup</a> | <a href="login.html">Login</a>
-    </nav>
-  </header>
+<header>
+  <h1>Omnify Blog App</h1>
+  <nav><a href="signup.html">Signup</a> | <a href="login.html">Login</a> | <a href="create.html">Create Blog</a></nav>
+</header>
 
-  <div id="blogs"></div>
+<div id="blogs"></div>
 
-  <script>
-    async function loadBlogs() {
-      try {
-        const res = await fetch('/blogs');
-        const data = await res.json();
-        const container = document.getElementById('blogs');
-        container.innerHTML = '';
-        data.forEach(blog => {
-          const div = document.createElement('div');
-          div.className = 'blog-card';
-          div.innerHTML = `
-            <h3>${blog.title}</h3>
-            <p>${blog.content}</p>
-            <small>By: ${blog.author}</small>
-          `;
-          container.appendChild(div);
-        });
-      } catch (err) {
-        console.error('Error loading blogs:', err);
-      }
-    }
+<script>
+async function loadBlogs(){
+  try{
+    const res = await fetch('/blogs');
+    const data = await res.json();
+    const container = document.getElementById('blogs');
+    container.innerHTML = '';
+    data.forEach(blog=>{
+      const div = document.createElement('div');
+      div.className='blog-card';
+      div.innerHTML=`
+        <h3>${blog.title}</h3>
+        <p>${blog.content}</p>
+        <small>By: ${blog.author}</small><br>
+        <span>Likes: <span id="likes-${blog.id}">${blog.likes}</span></span>
+        <button onclick="likePost(${blog.id})">Like ❤️</button>
+        <div id="comments-${blog.id}">
+          ${blog.comments.map(c=>`<p><b>${c.author}:</b> ${c.comment}</p>`).join('')}
+        </div>
+        <input type="text" id="comment-input-${blog.id}" placeholder="Add comment"/>
+        <button onclick="addComment(${blog.id})">Comment</button>
+      `;
+      container.appendChild(div);
+    });
+  }catch(err){console.error(err);}
+}
 
-    loadBlogs();
-  </script>
+async function likePost(id){
+  try{
+    const res = await fetch(`/blogs/${id}/like`,{method:'POST'});
+    const data = await res.json();
+    document.getElementById(`likes-${id}`).innerText=data.likes;
+  }catch(err){console.error(err);}
+}
+
+async function addComment(id){
+  const input = document.getElementById(`comment-input-${id}`);
+  const comment = input.value.trim();
+  if(!comment) return;
+  const author = prompt("Enter your name for comment:");
+  try{
+    const res = await fetch(`/blogs/${id}/comment`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({author, comment})
+    });
+    const data = await res.json();
+    const div = document.getElementById(`comments-${id}`);
+    div.innerHTML=data.comments.map(c=>`<p><b>${c.author}:</b> ${c.comment}</p>`).join('');
+    input.value='';
+  }catch(err){console.error(err);}
+}
+
+loadBlogs();
+</script>
 </body>
 </html>
