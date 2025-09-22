@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog Detail - Omnify Blog App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Blog Detail</h1>
+  <div id="blog"></div>
+  <a href="index.html">Back to Blogs</a>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    fetch('/blogs/' + id)
+      .then(res => res.json())
+      .then(blog => {
+        const container = document.getElementById('blog');
+        container.innerHTML = `<h2>${blog.title}</h2><p>${blog.content}</p><small>By: ${blog.author}</small>`;
+      });
+  </script>
+</body>
+</html>
