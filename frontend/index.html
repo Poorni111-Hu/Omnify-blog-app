@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Omnify Blog App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Welcome to Omnify Blog App</h1>
+  <a href="signup.html">Signup</a> | <a href="login.html">Login</a>
+  <div id="blogs"></div>
+
+  <script>
+    fetch('/blogs')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('blogs');
+        data.forEach(blog => {
+          const div = document.createElement('div');
+          div.innerHTML = `<h3>${blog.title}</h3><p>${blog.content}</p><small>By: ${blog.author}</small>`;
+          container.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>
