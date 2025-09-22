@@ -3,23 +3,86 @@
 <head>
   <title>Omnify Blog App</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #2e8b57;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #blogs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+    .blog-card {
+      background: white;
+      width: 80%;
+      max-width: 700px;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .blog-card h3 {
+      margin-top: 0;
+      color: #2e8b57;
+    }
+    .blog-card p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .blog-card small {
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to Omnify Blog App</h1>
-  <a href="signup.html">Signup</a> | <a href="login.html">Login</a>
+  <header>
+    <h1>Omnify Blog App</h1>
+    <nav>
+      <a href="signup.html">Signup</a> | <a href="login.html">Login</a>
+    </nav>
+  </header>
+
   <div id="blogs"></div>
 
   <script>
-    fetch('/blogs')
-      .then(res => res.json())
-      .then(data => {
+    async function loadBlogs() {
+      try {
+        const res = await fetch('/blogs');
+        const data = await res.json();
         const container = document.getElementById('blogs');
+        container.innerHTML = '';
         data.forEach(blog => {
           const div = document.createElement('div');
-          div.innerHTML = `<h3>${blog.title}</h3><p>${blog.content}</p><small>By: ${blog.author}</small>`;
+          div.className = 'blog-card';
+          div.innerHTML = `
+            <h3>${blog.title}</h3>
+            <p>${blog.content}</p>
+            <small>By: ${blog.author}</small>
+          `;
           container.appendChild(div);
         });
-      });
+      } catch (err) {
+        console.error('Error loading blogs:', err);
+      }
+    }
+
+    loadBlogs();
   </script>
 </body>
 </html>
